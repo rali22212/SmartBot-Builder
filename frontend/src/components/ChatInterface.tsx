@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BASE_URL } from "@/config";
 
 interface Message {
   id: string;
@@ -71,8 +72,7 @@ const ChatInterface = ({ chatbotName, organizationId, onMessageUpdate, onClose }
       try {
         console.log(`Loading history for org: ${organizationId}`);
         const token = localStorage.getItem("smartbot_token");
-        const baseUrl = `${window.location.protocol}//${window.location.hostname}:5050`;
-        const response = await fetch(`${baseUrl}/api/bot/${organizationId}/chat-history`, {
+        const response = await fetch(`${BASE_URL}/api/bot/${organizationId}/chat-history`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

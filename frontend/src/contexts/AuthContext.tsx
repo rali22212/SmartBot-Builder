@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_BASE_URL } from '@/config';
 import {
     generateOTP,
     sendVerificationOTP,
@@ -32,7 +33,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE = `${window.location.protocol}//${window.location.hostname}:5050/api`;
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
@@ -52,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = async (email: string, password: string) => {
         try {
-            const response = await fetch(`${API_BASE}/auth/login`, {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -81,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const register = async (email: string, password: string) => {
         try {
-            const response = await fetch(`${API_BASE}/auth/register`, {
+            const response = await fetch(`${API_BASE_URL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -118,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
 
             // Call backend to mark user as verified and get token
-            const response = await fetch(`${API_BASE}/auth/verify-otp`, {
+            const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, code }),
@@ -197,7 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
 
             // Call backend to reset password
-            const response = await fetch(`${API_BASE}/auth/reset-password`, {
+            const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, code, new_password: newPassword }),
@@ -217,7 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const changePassword = async (currentPassword: string, newPassword: string) => {
         try {
-            const response = await fetch(`${API_BASE}/auth/change-password`, {
+            const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

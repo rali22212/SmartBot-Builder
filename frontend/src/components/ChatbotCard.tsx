@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getAuthHeader } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { BASE_URL } from "@/config";
 
 interface ChatbotCardProps {
   id: string;
@@ -36,10 +37,11 @@ interface ChatbotCardProps {
 
 const ChatbotCard = ({ id, name, description, createdAt, location, onChat, onDelete, onRefresh }: ChatbotCardProps) => {
 
+
+
   const handleExportBot = async () => {
     try {
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5050`;
-      const response = await fetch(`${baseUrl}/api/bot/${id}/export`, {
+      const response = await fetch(`${BASE_URL}/api/bot/${id}/export`, {
         headers: { ...getAuthHeader() },
       });
 
@@ -66,8 +68,7 @@ const ChatbotCard = ({ id, name, description, createdAt, location, onChat, onDel
 
   const handleExportChatHistory = async () => {
     try {
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5050`;
-      const response = await fetch(`${baseUrl}/api/bot/${id}/chat-history/export`, {
+      const response = await fetch(`${BASE_URL}/api/bot/${id}/chat-history/export`, {
         headers: { ...getAuthHeader() },
       });
 
