@@ -3,26 +3,23 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Zap, Shield, Sparkles, ArrowRight } from "lucide-react";
-import BotIcon from "@/components/icons/BotIcon";
-import BotFocus from "@/components/icons/BotFocus";
+import Logo from "@/components/Logo";
 
 const About = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Navbar />
-      
+
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
         {/* Hero Section */}
         <div className="text-center mb-16 animate-fade-in">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="relative">
-              <BotFocus className="animate-float ">
-                <BotIcon className="" size={64} />
-              </BotFocus>
-              <div className="absolute inset-0 blur-xl opacity-50 bg-primary rounded-full" />
+              <Logo size={120} className="animate-float" />
+              <div className="absolute inset-0 blur-3xl opacity-20 bg-primary/50 rounded-full" />
             </div>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-foreground drop-shadow-glow">
             SmartBot Builder
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">

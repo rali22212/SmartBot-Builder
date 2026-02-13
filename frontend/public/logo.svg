@@ -1,0 +1,37 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logo-gradient" x1="10" y1="10" x2="90" y2="90" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7c3aed" /> <!-- Primary: Violet -->
+      <stop offset="50%" stop-color="#06b6d4" /> <!-- Secondary: Cyan -->
+      <stop offset="100%" stop-color="#db2777" /> <!-- Accent: Magenta -->
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Main Head Outline -->
+  <path d="M50 8 L85 28 V72 L50 92 L15 72 V28 Z" stroke="url(#logo-gradient)" stroke-width="3.5" fill="#111111" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Forehead Circuitry -->
+  <path d="M50 8 V25 M32 18 L50 28 L68 18" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />
+
+  <!-- Eyes -->
+  <g>
+    <circle cx="35" cy="48" r="5" fill="#06b6d4" filter="url(#glow)" />
+    <circle cx="35" cy="48" r="2" fill="white" opacity="0.8" />
+    <circle cx="65" cy="48" r="5" fill="#06b6d4" filter="url(#glow)" />
+    <circle cx="65" cy="48" r="2" fill="white" opacity="0.8" />
+  </g>
+
+  <!-- Mouth -->
+  <path d="M38 68 Q50 76 62 68" stroke="url(#logo-gradient)" stroke-width="3.5" stroke-linecap="round" fill="none" />
+
+  <!-- Accents -->
+  <circle cx="25" cy="58" r="1.5" fill="#db2777" opacity="0.6" />
+  <circle cx="75" cy="58" r="1.5" fill="#db2777" opacity="0.6" />
+</svg>

@@ -8,64 +8,83 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Teal-focused dark theme */
-    --background: 200 40% 6%;
-    --foreground: 210 100% 98%;
+    /* Cosmic AI - Deep Space Theme */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 200 35% 10%;
-    --card-foreground: 210 100% 98%;
+    --card: 240 10% 6%;
+    /* Slightly lighter than bg */
+    --card-foreground: 0 0% 98%;
 
-    --popover: 200 38% 8%;
-    --popover-foreground: 210 100% 98%;
+    --popover: 240 10% 5%;
+    --popover-foreground: 0 0% 98%;
 
-    /* Teal primary */
-    --primary: 174 73% 45%;
-    --primary-foreground: 186 100% 97%;
-    --primary-glow: 174 90% 58%;
+    /* Electric Violet Primary */
+    --primary: 263 90% 65%;
+    --primary-foreground: 210 40% 98%;
+    --primary-glow: 263 90% 75%;
 
-    /* Cyan secondary */
-    --secondary: 188 82% 46%;
-    --secondary-foreground: 186 100% 97%;
-    --secondary-glow: 188 90% 60%;
+    /* Cyber Cyan Secondary */
+    --secondary: 190 95% 50%;
+    --secondary-foreground: 240 5.9% 10%;
+    --secondary-glow: 190 95% 60%;
 
-    /* Emerald accent */
-    --accent: 160 70% 42%;
-    --accent-foreground: 200 40% 6%;
-    --accent-glow: 160 80% 55%;
+    /* Neon Magenta Accent */
+    --accent: 320 85% 60%;
+    --accent-foreground: 0 0% 98%;
+    --accent-glow: 320 85% 70%;
 
-    --success: 160 84% 39%;
-    --success-foreground: 200 40% 6%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
 
-    --muted: 200 22% 24%;
-    --muted-foreground: 200 30% 70%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --destructive: 0 85% 60%;
-    --destructive-foreground: 210 100% 98%;
+    --border: 240 4% 20%;
+    --input: 240 4% 18%;
+    --ring: 263 90% 65%;
 
-    --border: 200 25% 18%;
-    --input: 200 25% 15%;
-    --ring: 174 73% 45%;
+    --radius: 1rem;
+    /* More rounded */
 
-    --radius: 0.75rem;
+    /* Advanced AI Gradients */
+    --gradient-ai: linear-gradient(135deg, hsl(263 90% 65%), hsl(320 85% 60%), hsl(190 95% 50%));
+    --gradient-hero: radial-gradient(circle at top center, hsl(263 40% 20%), hsl(240 10% 3.9%) 80%);
+    --gradient-card: linear-gradient(145deg, hsl(240 10% 10% / 0.7), hsl(240 10% 15% / 0.4));
+    --gradient-button: linear-gradient(90deg, hsl(263 90% 65%), hsl(290 90% 60%));
+    --gradient-accent: linear-gradient(135deg, hsl(190 95% 50%), hsl(263 90% 65%));
 
-    /* Teal gradients */
-    --gradient-ai: linear-gradient(135deg, hsl(174 73% 45%), hsl(188 82% 46%), hsl(160 70% 42%));
-    --gradient-hero: linear-gradient(180deg, hsl(200 40% 6%), hsl(200 38% 10%), hsl(188 35% 14%));
-    --gradient-card: linear-gradient(135deg, hsl(200 35% 10% / 0.8), hsl(200 40% 16% / 0.6));
-    --gradient-button: linear-gradient(135deg, hsl(174 73% 45%), hsl(188 82% 46%));
-    --gradient-accent: linear-gradient(135deg, hsl(160 70% 42%), hsl(174 73% 45%));
-    
-    /* Glassmorphism */
-    --glass-bg: hsl(200 35% 10% / 0.4);
-    --glass-border: hsl(186 100% 97% / 0.1);
-    
-    /* Shadows & Glows */
-    --shadow-glow: 0 0 40px hsl(174 73% 45% / 0.3);
-    --shadow-glow-accent: 0 0 40px hsl(160 70% 42% / 0.3);
-    --shadow-card: 0 8px 32px hsl(200 40% 6% / 0.5);
-    
+    /* Premium Glassmorphism */
+    --glass-bg: hsl(240 10% 8% / 0.6);
+    --glass-border: hsl(263 90% 65% / 0.2);
+
+    /* Neon Glows */
+    --shadow-glow: 0 0 50px -12px hsl(263 90% 65% / 0.5);
+    --shadow-glow-accent: 0 0 50px -12px hsl(320 85% 60% / 0.5);
+    --shadow-card: 0 20px 40px -10px hsl(0 0% 0% / 0.5);
+
     /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+}
+
+@keyframes disintegrate {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0px);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02) translateY(-5px);
+    filter: blur(2px) grayscale(0.5);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.1) translateY(-20px);
+    filter: blur(10px) grayscale(1);
   }
 }
 
@@ -83,8 +102,14 @@ All colors MUST be HSL.
   .glass-card {
     @apply bg-glass-bg backdrop-blur-xl border border-glass-border;
   }
-  
+
   .text-gradient {
     @apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent;
+  }
+
+  .animate-disintegrate {
+    animation: disintegrate 1s forwards ease-out;
+    pointer-events: none;
+    /* Prevent clicks while disappearing */
   }
 }

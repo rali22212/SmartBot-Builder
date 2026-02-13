@@ -6,14 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Upload, Sparkles, FileUp, Settings2, Building2, Users2, PackageSearch, Wrench } from "lucide-react";
+import { Upload, Sparkles, FileUp, Settings2, Building2, Users2, PackageSearch, Wrench, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import SparkleLoader from "@/components/ui/sparkle-loader";
+
+import { getAuthHeader } from "@/contexts/AuthContext";
 
 const CreateBot = () => {
   // Common fields
   const [botName, setBotName] = useState("");
   const [botDescription, setBotDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Mode
   const [mode, setMode] = useState<"automatic" | "manual">("automatic");
@@ -38,10 +43,15 @@ const CreateBot = () => {
 
   const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type === "application/pdf") {
+    const validTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword"
+    ];
+    if (file && validTypes.includes(file.type)) {
       setPdfFile(file);
     } else if (file) {
-      toast.error("Please select a PDF file");
+      toast.error("Please select a PDF or DOCX file");
     }
   };
 
@@ -89,9 +99,11 @@ const CreateBot = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     if (!botName.trim() || !botDescription.trim()) {
       toast.error("Please provide Chatbot Name and Description");
+      setIsSubmitting(false);
       return;
     }
 
@@ -126,14 +138,28 @@ const CreateBot = () => {
         formData.append("services", JSON.stringify(services));
       }
 
-      const response = await fetch("http://localhost:5050/api/create-bot", {
+      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5050`;
+      const response = await fetch(`${baseUrl}/api/create-bot`, {
         method: "POST",
+        headers: {
+          ...getAuthHeader(),
+        },
         body: formData,
       });
 
       const result = await response.json();
 
       if (!response.ok) {
+        // If token expired or invalid, redirect to login
+        if (response.status === 401) {
+          localStorage.removeItem('smartbot_token');
+          localStorage.removeItem('smartbot_user');
+          toast.error("Session expired", { description: "Please login again" });
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 1000);
+          return;
+        }
         throw new Error(result.error || "Failed to create chatbot");
       }
 
@@ -161,6 +187,7 @@ const CreateBot = () => {
       toast.error("Failed to create chatbot", {
         description: error.message,
       });
+      setIsSubmitting(false);
     }
   };
 
@@ -170,23 +197,31 @@ const CreateBot = () => {
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
         {/* Hero/Intro */}
-        <div className="text-center mb-12 animate-fade-in">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Sparkles className="h-10 w-10 text-accent" />
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-              Create a New Chatbot
-            </h1>
+        <div className="mb-8 animate-fade-in">
+          <Link to="/">
+            <Button variant="ghost" className="gap-2 mb-6 hover:bg-primary/10">
+              <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+            </Button>
+          </Link>
+
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Sparkles className="h-10 w-10 text-accent" />
+              <h1 className="text-4xl md:text-5xl font-bold text-foreground">
+                Create a New Chatbot
+              </h1>
+            </div>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              You can provide your organization's details by uploading a PDF or pasting text that includes your organization info, services, products, and employees.
+              Or, set everything up manually using our guided forms.
+            </p>
           </div>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            You can provide your organization's details by uploading a PDF or pasting text that includes your organization info, services, products, and employees.
-            Or, set everything up manually using our guided forms.
-          </p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-8 animate-slide-up">
           {/* Common fields */}
-          <Card className="bg-gradient-card backdrop-blur-sm border-border/50">
+          <Card className="bg-glass-bg backdrop-blur-md border-glass-border shadow-glow">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-accent" /> Common Details
@@ -218,7 +253,7 @@ const CreateBot = () => {
 
             {/* Automatic mode */}
             <TabsContent value="automatic" className="mt-6">
-              <Card className="bg-gradient-card backdrop-blur-sm border-border/50">
+              <Card className="bg-glass-bg backdrop-blur-md border-glass-border shadow-glow">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <FileUp className="h-5 w-5 text-primary" /> Upload PDF
@@ -226,8 +261,21 @@ const CreateBot = () => {
                   <CardDescription>Provide a PDF containing your organization details (name, products, services, etc.)</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Label htmlFor="pdf">Organization Info (PDF) *</Label>
-                  <Input id="pdf" type="file" accept="application/pdf" onChange={handlePdfChange} />
+                  <Label htmlFor="pdf">Organization Info (PDF or DOCX) *</Label>
+                  <div className="relative group cursor-pointer">
+                    <Input
+                      id="pdf"
+                      type="file"
+                      accept=".pdf,.docx,.doc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
+                      onChange={handlePdfChange}
+                      className="opacity-0 absolute inset-0 w-full h-full cursor-pointer z-10"
+                    />
+                    <div className="border-2 border-dashed border-border group-hover:border-primary group-hover:bg-primary/5 rounded-lg p-8 text-center transition-all duration-300 md:group-active:scale-[0.99]">
+                      <FileUp className="h-10 w-10 mx-auto text-muted-foreground group-hover:text-primary group-hover:scale-110 transition-all duration-300 mb-3" />
+                      <p className="font-medium text-foreground">Click to upload or drag and drop</p>
+                      <p className="text-sm text-muted-foreground mt-1">PDF, DOC, DOCX up to 10MB</p>
+                    </div>
+                  </div>
                   {pdfFile && (
                     <p className="text-sm text-muted-foreground">Selected: {pdfFile.name}</p>
                   )}
@@ -238,7 +286,7 @@ const CreateBot = () => {
             {/* Manual mode */}
             <TabsContent value="manual" className="mt-6 space-y-6">
               {/* Organization */}
-              <Card className="bg-gradient-card backdrop-blur-sm border-border/50">
+              <Card className="bg-glass-bg backdrop-blur-md border-glass-border shadow-glow">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Building2 className="h-5 w-5 text-primary" /> Organization Details
@@ -266,7 +314,7 @@ const CreateBot = () => {
               </Card>
 
               {/* Employees */}
-              <Card className="bg-gradient-card backdrop-blur-sm border-border/50">
+              <Card className="bg-glass-bg backdrop-blur-md border-glass-border shadow-glow">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users2 className="h-5 w-5 text-accent" /> Employee Details
@@ -302,7 +350,7 @@ const CreateBot = () => {
 
               {/* Products and Services */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="bg-gradient-card backdrop-blur-sm border-border/50">
+                <Card className="bg-glass-bg backdrop-blur-md border-glass-border shadow-glow">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <PackageSearch className="h-5 w-5 text-primary" /> Products
@@ -339,7 +387,7 @@ const CreateBot = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-card backdrop-blur-sm border-border/50">
+                <Card className="bg-glass-bg backdrop-blur-md border-glass-border shadow-glow">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Wrench className="h-5 w-5 text-accent" /> Services
@@ -380,20 +428,28 @@ const CreateBot = () => {
           </Tabs>
 
           <div className="flex justify-end">
-            <Button type="submit" className="bg-gradient-button hover:shadow-glow">
-              Create Chatbot
+            <Button
+              type="submit"
+              className="bg-gradient-button hover:shadow-glow gap-2 min-w-[160px] disabled:opacity-70 disabled:cursor-not-allowed"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <SparkleLoader size="sm" text="Deploying Intelligence..." variant="white" />
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Create Chatbot
+                </>
+              )}
             </Button>
           </div>
         </form>
 
-        {/* Note */}
-        <div className="text-center text-sm text-muted-foreground">
-          We’ll add validation and backend hookups later. For now, this page collects your inputs.
-        </div>
+
       </main>
 
       <Footer />
-    </div>
+    </div >
   );
 };
 

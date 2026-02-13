@@ -119,23 +119,32 @@ export default {
           "50%": {
             transform: "translateY(-10px)"
           }
+        },
+        "shimmer": {
+          "from": {
+            "backgroundPosition": "0 0"
+          },
+          "to": {
+            "backgroundPosition": "-200% 0"
+          }
         }
       },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.5s ease-out",
-        "slide-up": "slide-up 0.6s ease-out",
-        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
-        "float": "float 3s ease-in-out infinite",
-      },
-      backgroundImage: {
-        "gradient-ai": "var(--gradient-ai)",
-        "gradient-hero": "var(--gradient-hero)",
-        "gradient-card": "var(--gradient-card)",
-        "gradient-button": "var(--gradient-button)",
-        "gradient-accent": "var(--gradient-accent)",
-      },
+    },
+    animation: {
+      "accordion-down": "accordion-down 0.2s ease-out",
+      "accordion-up": "accordion-up 0.2s ease-out",
+      "fade-in": "fade-in 0.5s ease-out",
+      "slide-up": "slide-up 0.6s ease-out",
+      "glow-pulse": "glow-pulse 2s ease-in-out infinite",
+      "float": "float 3s ease-in-out infinite",
+      "shimmer": "shimmer 2s linear infinite",
+    },
+    backgroundImage: {
+      "gradient-ai": "var(--gradient-ai)",
+      "gradient-hero": "var(--gradient-hero)",
+      "gradient-card": "var(--gradient-card)",
+      "gradient-button": "var(--gradient-button)",
+      "gradient-accent": "var(--gradient-accent)",
     },
   },
   plugins: [animate],

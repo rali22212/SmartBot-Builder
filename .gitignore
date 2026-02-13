@@ -1,45 +1,40 @@
-# Python cache files
-__pycache__/
-*.py[cod]
-*$py.class
+# Dependencies
+node_modules/
+frontend/node_modules/
+server/venv/
+server/.venv/
 
-# Virtual environment
-venv/
-.env/
-
-# Environment and credentials
-*.env
+# Environment Variables (CRITICAL)
 .env
+.env.local
+.env.*.local
+frontend/.env
+server/.env
 
-# IDE / editor settings
-.vscode/
-.idea/
-*.swp
+# Build Outputs
+dist/
+build/
+frontend/dist/
 
-# Byte-compiled / optimized / DLL files
+# Python
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+server/instance/
 
-# Log files
-*.log
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# macOS / Linux / Windows system files
+# OS
 .DS_Store
 Thumbs.db
-
-# Flask cache or instance
-instance/
-*.db
-
-# Jupyter notebooks checkpoints
-.ipynb_checkpoints/
-
-# Build / distribution
-build/
-dist/
-*.egg-info/
-.eggs/
-
-# Temporary files
-tmp/

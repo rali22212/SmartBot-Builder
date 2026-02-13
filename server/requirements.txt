@@ -1,7 +1,11 @@
 flask
 flask-cors
-pymongo
+flask-sqlalchemy
+flask-mail
+psycopg2-binary
 python-dotenv
+bcrypt
+PyJWT
 llama-index
 llama-index-llms-groq
 llama-index-embeddings-huggingface
