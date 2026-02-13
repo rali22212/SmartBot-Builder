@@ -1,3 +1,5 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
 flask
 flask-cors
 flask-sqlalchemy
@@ -11,5 +13,4 @@ llama-index-llms-groq
 llama-index-embeddings-huggingface
 PyMuPDF
 sentence-transformers
-torch
 gunicorn
