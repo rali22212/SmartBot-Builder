@@ -772,4 +772,5 @@ def delete_chat_message(message_id):
         return jsonify({'error': 'Failed to delete message'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5050)
+    port = int(os.getenv("PORT", 5050))
+    app.run(debug=True, host='0.0.0.0', port=port)
