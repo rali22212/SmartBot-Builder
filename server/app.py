@@ -425,6 +425,7 @@ Organization Information:
 
         return jsonify({
             "response": str(response),
+            "chat_id": chat_entry.id,
             "timestamp": datetime.now().isoformat()
         })
 

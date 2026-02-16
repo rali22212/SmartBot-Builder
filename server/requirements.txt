@@ -10,4 +10,5 @@ llama-index-core
 llama-index-llms-groq
 llama-index-readers-file
 PyMuPDF
+docx2txt
 gunicorn

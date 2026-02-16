@@ -177,10 +177,22 @@ const ChatInterface = ({ chatbotName, organizationId, onMessageUpdate, onClose }
         id: (Date.now() + 1).toString(),
         role: "bot",
         content: result.response,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        dbId: result.chat_id,
       };
 
-      setMessages(prev => [...prev, botMessage]);
+      // Update the user message with the dbId so it can be deleted too
+      setMessages(prev => {
+        const updated = [...prev];
+        // Find the last user message (the one we just sent) and assign the dbId
+        for (let i = updated.length - 1; i >= 0; i--) {
+          if (updated[i].id === userMessage.id) {
+            updated[i] = { ...updated[i], dbId: result.chat_id };
+            break;
+          }
+        }
+        return [...updated, botMessage];
+      });
 
       // Update dashboard stats (1 user query + 1 bot response = 2 messages)
       // But typically we count "interactions" or "messages". Let's count total messages added.
