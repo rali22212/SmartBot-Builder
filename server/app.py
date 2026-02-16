@@ -9,8 +9,7 @@ import tempfile
 from pathlib import Path
 
 from llama_index.llms.groq import Groq
-from llama_index.core import VectorStoreIndex, Document
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core.llms import ChatMessage
 from llama_index.readers.file import PDFReader, DocxReader
 
 from models import db, Organization, ChatHistory, WidgetConfig, User
@@ -60,21 +59,30 @@ app.register_blueprint(auth_bp)
 # AI Configuration
 groq_api_key = os.getenv("GROQ_API_KEY")
 llm = None
-_embed_model = None
-
-def get_embed_model():
-    """Lazy-load embedding model to avoid OOM on startup (Render free tier = 512MB)"""
-    global _embed_model
-    if _embed_model is None and groq_api_key:
-        print("Lazy loading embedding model...")
-        _embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    return _embed_model
 
 if groq_api_key:
     llm = Groq(model="llama-3.3-70b-versatile", api_key=groq_api_key)
 
-# In-memory index storage (in production, use persistent storage)
-organization_indices = {}
+def get_context_text(org):
+    """Extract context text from organization data for LLM queries."""
+    if org.mode == 'automatic' and org.data and org.data.get('content'):
+        return org.data['content']
+    elif org.mode == 'manual' and org.data:
+        d = org.data
+        text = f"Organization Name: {d.get('name', '')}\n"
+        text += f"Website: {d.get('website', '')}\n"
+        text += f"Industry: {d.get('industry', '')}\n"
+        text += f"About: {d.get('about', '')}\n\nEmployees:\n"
+        for emp in d.get('employees', []):
+            text += f"- {emp.get('name', '')}: {emp.get('role', '')}\n"
+        text += "\nProducts:\n"
+        for prod in d.get('products', []):
+            text += f"- {prod.get('name', '')}: {prod.get('details', '')}\n"
+        text += "\nServices:\n"
+        for serv in d.get('services', []):
+            text += f"- {serv.get('name', '')}: {serv.get('details', '')}\n"
+        return text
+    return ''
 
 # Create tables
 with app.app_context():
@@ -171,12 +179,6 @@ def create_bot():
                 
                 documents = loader.load_data(file=Path(tmp_path))
 
-                em = get_embed_model()
-                if em:
-                    index = VectorStoreIndex.from_documents(documents, embed_model=em)
-                else:
-                    index = VectorStoreIndex.from_documents(documents)
-
                 # Save full text content to persist index
                 full_text = "\n\n".join([doc.text for doc in documents])
 
@@ -224,13 +226,7 @@ Employees:
             for serv in services:
                 text_content += f"- {serv['name']}: {serv['details']}\n"
 
-            documents = [Document(text=text_content)]
-
-            em = get_embed_model()
-            if em:
-                index = VectorStoreIndex.from_documents(documents, embed_model=em)
-            else:
-                index = VectorStoreIndex.from_documents(documents)
+            # Text content is stored in org_data below
 
             org_data = {
                 "name": org_name,
@@ -256,9 +252,6 @@ Employees:
         )
         db.session.add(organization)
         db.session.commit()
-
-        # Store index in memory
-        organization_indices[organization.id] = index
 
         # Create default widget config
         widget_config = WidgetConfig(organization_id=organization.id)
@@ -392,71 +385,29 @@ def query_organization(org_id):
         if not org:
             return jsonify({"error": "Organization not found"}), 404
 
-        # If index not in memory, try to rebuild it from stored data
-        if org_id not in organization_indices:
-            try:
-                if org.mode == 'manual' and org.data:
-                    # Rebuild from manual data
-                    data = org.data
-                    text_content = f"""
-Organization Name: {data.get('name', '')}
-Website: {data.get('website', '')}
-Industry: {data.get('industry', '')}
-About: {data.get('about', '')}
+        # Get context text from stored data
+        context_text = get_context_text(org)
+        if not context_text:
+            return jsonify({
+                "error": "Bot data not available. Please recreate the bot.",
+                "code": "NO_DATA"
+            }), 500
 
-Employees:
-"""
-                    for emp in data.get('employees', []):
-                        text_content += f"- {emp.get('name', '')}: {emp.get('role', '')}\n"
+        if not llm:
+            return jsonify({"error": "AI service not configured"}), 500
 
-                    text_content += "\nProducts:\n"
-                    for prod in data.get('products', []):
-                        text_content += f"- {prod.get('name', '')}: {prod.get('details', '')}\n"
+        # Query Groq LLM directly with context (no local ML model needed)
+        system_prompt = f"""You are a helpful AI assistant for the organization described below. Answer questions based ONLY on the provided information. If the answer is not in the information, say you don't have that information.
 
-                    text_content += "\nServices:\n"
-                    for serv in data.get('services', []):
-                        text_content += f"- {serv.get('name', '')}: {serv.get('details', '')}\n"
+Organization Information:
+{context_text}"""
 
-                    documents = [Document(text=text_content)]
-                    
-                    em = get_embed_model()
-                    if em:
-                        index = VectorStoreIndex.from_documents(documents, embed_model=em)
-                    else:
-                        index = VectorStoreIndex.from_documents(documents)
-                    
-                    organization_indices[org_id] = index
-                    print(f"Rebuilt index for organization {org_id} (manual mode)")
-                elif org.mode == 'automatic' and org.data.get('content'):
-                    # Rebuild from stored content
-                    documents = [Document(text=org.data['content'])]
-                    
-                    em = get_embed_model()
-                    if em:
-                        index = VectorStoreIndex.from_documents(documents, embed_model=em)
-                    else:
-                        index = VectorStoreIndex.from_documents(documents)
-                    
-                    organization_indices[org_id] = index
-                    print(f"Rebuilt index for organization {org_id} (automatic mode)")
-                else:
-                    # For automatic mode, we can't rebuild without the original file
-                    return jsonify({
-                        "error": "Bot index not available. For PDF/DOCX bots, please upload the document again by editing the bot.",
-                        "code": "INDEX_NOT_FOUND"
-                    }), 500
-            except Exception as rebuild_error:
-                print(f"Error rebuilding index: {str(rebuild_error)}")
-                return jsonify({"error": f"Failed to load bot: {str(rebuild_error)}"}), 500
-
-        index = organization_indices[org_id]
-        
-        if llm:
-            query_engine = index.as_query_engine(llm=llm)
-        else:
-            query_engine = index.as_query_engine()
-            
-        response = query_engine.query(query)
+        messages = [
+            ChatMessage(role="system", content=system_prompt),
+            ChatMessage(role="user", content=query),
+        ]
+        llm_response = llm.chat(messages)
+        response = str(llm_response.message.content)
 
         # Save chat history
         chat_entry = ChatHistory(
@@ -491,10 +442,6 @@ def delete_bot(org_id):
         org = Organization.query.filter_by(id=org_id, user_id=request.user_id).first()
         if not org:
             return jsonify({'error': 'Organization not found'}), 404
-        
-        # Remove from memory
-        if org_id in organization_indices:
-            del organization_indices[org_id]
         
         # Soft delete
         org.is_deleted = True
@@ -646,40 +593,7 @@ def import_bot():
         db.session.add(org)
         db.session.commit()
         
-        # Rebuild index if manual mode
-        if org.mode == 'manual' and org.data:
-            try:
-                data_dict = org.data
-                text_content = f"""
-Organization Name: {data_dict.get('name', '')}
-Website: {data_dict.get('website', '')}
-Industry: {data_dict.get('industry', '')}
-About: {data_dict.get('about', '')}
-
-Employees:
-"""
-                for emp in data_dict.get('employees', []):
-                    text_content += f"- {emp.get('name', '')}: {emp.get('role', '')}\n"
-
-                text_content += "\nProducts:\n"
-                for prod in data_dict.get('products', []):
-                    text_content += f"- {prod.get('name', '')}: {prod.get('details', '')}\n"
-
-                text_content += "\nServices:\n"
-                for serv in data_dict.get('services', []):
-                    text_content += f"- {serv.get('name', '')}: {serv.get('details', '')}\n"
-
-                documents = [Document(text=text_content)]
-                
-                em = get_embed_model()
-                if em:
-                    index = VectorStoreIndex.from_documents(documents, embed_model=em)
-                else:
-                    index = VectorStoreIndex.from_documents(documents)
-                
-                organization_indices[org.id] = index
-            except Exception as idx_error:
-                print(f"Index rebuild error: {str(idx_error)}")
+        # Data is stored in org.data, no index rebuild needed
         
         return jsonify({
             'message': 'Bot imported successfully!',
