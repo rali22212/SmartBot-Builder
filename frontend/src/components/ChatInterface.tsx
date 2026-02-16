@@ -572,7 +572,7 @@ const ChatInterface = ({ chatbotName, organizationId, onMessageUpdate, onClose }
                         className={`flex-1 max-w-[80%] ${message.role === "user" ? "text-right" : "text-left"
                           }`}
                       >
-                        <div className="relative inline-block">
+                        <div className="inline-block">
                           <div
                             className={`rounded-lg px-4 py-2 ${message.role === "bot"
                               ? "bg-muted/50 text-foreground"
@@ -581,19 +581,21 @@ const ChatInterface = ({ chatbotName, organizationId, onMessageUpdate, onClose }
                           >
                             <p className="text-sm">{message.content}</p>
                           </div>
-                          {message.dbId && message.role === "user" && (
+                        </div>
+                        <div className={`flex items-center gap-1 mt-1 px-1 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                          <p className="text-xs text-muted-foreground">
+                            {formatTime(message.timestamp)}
+                          </p>
+                          {message.dbId && (
                             <button
                               onClick={() => promptDeleteMessage(message.dbId!)}
-                              className="absolute -left-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                              className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
                               title="Delete this message"
                             >
-                              <X className="h-4 w-4" />
+                              <X className="h-3.5 w-3.5" />
                             </button>
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1 px-1">
-                          {formatTime(message.timestamp)}
-                        </p>
                       </div>
                     </div>
                   </div>
