@@ -54,11 +54,18 @@ app.register_blueprint(auth_bp)
 # AI Configuration
 groq_api_key = os.getenv("GROQ_API_KEY")
 llm = None
-embed_model = None
+_embed_model = None
+
+def get_embed_model():
+    """Lazy-load embedding model to avoid OOM on startup (Render free tier = 512MB)"""
+    global _embed_model
+    if _embed_model is None and groq_api_key:
+        print("Lazy loading embedding model...")
+        _embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    return _embed_model
 
 if groq_api_key:
     llm = Groq(model="llama-3.3-70b-versatile", api_key=groq_api_key)
-    embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 # In-memory index storage (in production, use persistent storage)
 organization_indices = {}
@@ -158,8 +165,9 @@ def create_bot():
                 
                 documents = loader.load_data(file=Path(tmp_path))
 
-                if embed_model:
-                    index = VectorStoreIndex.from_documents(documents, embed_model=embed_model)
+                em = get_embed_model()
+                if em:
+                    index = VectorStoreIndex.from_documents(documents, embed_model=em)
                 else:
                     index = VectorStoreIndex.from_documents(documents)
 
@@ -212,8 +220,9 @@ Employees:
 
             documents = [Document(text=text_content)]
 
-            if embed_model:
-                index = VectorStoreIndex.from_documents(documents, embed_model=embed_model)
+            em = get_embed_model()
+            if em:
+                index = VectorStoreIndex.from_documents(documents, embed_model=em)
             else:
                 index = VectorStoreIndex.from_documents(documents)
 
@@ -404,8 +413,9 @@ Employees:
 
                     documents = [Document(text=text_content)]
                     
-                    if embed_model:
-                        index = VectorStoreIndex.from_documents(documents, embed_model=embed_model)
+                    em = get_embed_model()
+                    if em:
+                        index = VectorStoreIndex.from_documents(documents, embed_model=em)
                     else:
                         index = VectorStoreIndex.from_documents(documents)
                     
@@ -415,8 +425,9 @@ Employees:
                     # Rebuild from stored content
                     documents = [Document(text=org.data['content'])]
                     
-                    if embed_model:
-                        index = VectorStoreIndex.from_documents(documents, embed_model=embed_model)
+                    em = get_embed_model()
+                    if em:
+                        index = VectorStoreIndex.from_documents(documents, embed_model=em)
                     else:
                         index = VectorStoreIndex.from_documents(documents)
                     
@@ -654,8 +665,9 @@ Employees:
 
                 documents = [Document(text=text_content)]
                 
-                if embed_model:
-                    index = VectorStoreIndex.from_documents(documents, embed_model=embed_model)
+                em = get_embed_model()
+                if em:
+                    index = VectorStoreIndex.from_documents(documents, embed_model=em)
                 else:
                     index = VectorStoreIndex.from_documents(documents)
                 
