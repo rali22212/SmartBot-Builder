@@ -34,6 +34,12 @@ if database_url and database_url.startswith("postgres://"):
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,      # Test connections before using (fixes Neon SSL drops)
+    'pool_recycle': 300,         # Recycle connections every 5 minutes
+    'pool_size': 5,              # Keep pool small for free tier
+    'max_overflow': 2,           # Allow 2 extra connections under load
+}
 app.config['SECRET_KEY'] = os.getenv('JWT_SECRET', 'dev-secret-key')
 
 # Email configuration
