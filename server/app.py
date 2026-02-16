@@ -8,9 +8,9 @@ from werkzeug.utils import secure_filename
 import tempfile
 from pathlib import Path
 
-from llama_index.llms.groq import Groq
-from llama_index.core.llms import ChatMessage
-from llama_index.readers.file import PDFReader, DocxReader
+from groq import Groq
+import pypdf
+import docx2txt
 
 from models import db, Organization, ChatHistory, WidgetConfig, User
 from auth import auth_bp
@@ -61,7 +61,7 @@ groq_api_key = os.getenv("GROQ_API_KEY")
 llm = None
 
 if groq_api_key:
-    llm = Groq(model="llama-3.3-70b-versatile", api_key=groq_api_key)
+    llm = Groq(api_key=groq_api_key)
 
 def get_context_text(org):
     """Extract context text from organization data for LLM queries."""
@@ -171,21 +171,17 @@ def create_bot():
                 tmp_path = tmp_file.name
 
             try:
-                # Choose appropriate reader based on file type
+                # Extract text based on file type
                 if file_ext == 'pdf':
-                    loader = PDFReader()
+                    reader = pypdf.PdfReader(tmp_path)
+                    pages = [page.extract_text() or '' for page in reader.pages]
+                    full_text = "\n\n".join(pages)
                 else:
-                    loader = DocxReader()
-                
-                documents = loader.load_data(file=Path(tmp_path))
-
-                # Save full text content to persist index
-                full_text = "\n\n".join([doc.text for doc in documents])
+                    full_text = docx2txt.process(tmp_path)
 
                 org_data = {
                     "file_name": filename,
                     "file_type": file_ext.upper(),
-                    "document_count": len(documents),
                     "content": full_text
                 }
 
@@ -403,11 +399,14 @@ Organization Information:
 {context_text}"""
 
         messages = [
-            ChatMessage(role="system", content=system_prompt),
-            ChatMessage(role="user", content=query),
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": query},
         ]
-        llm_response = llm.chat(messages)
-        response = str(llm_response.message.content)
+        llm_response = llm.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+        )
+        response = llm_response.choices[0].message.content
 
         # Save chat history
         chat_entry = ChatHistory(

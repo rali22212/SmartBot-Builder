@@ -6,9 +6,7 @@ psycopg2-binary
 python-dotenv
 bcrypt
 PyJWT
-llama-index-core
-llama-index-llms-groq
-llama-index-readers-file
-PyMuPDF
+groq
+pypdf
 docx2txt
 gunicorn
