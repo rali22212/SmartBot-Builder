@@ -9,6 +9,7 @@ import BotIcon from "@/components/icons/BotIcon";
 import BotFocus from "@/components/icons/BotFocus";
 import Logo from "@/components/Logo";
 import { Link, useLocation } from "react-router-dom";
+import { API_BASE_URL } from "@/config";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth, getAuthHeader } from "@/contexts/AuthContext";
@@ -60,8 +61,7 @@ const Dashboard = () => {
 
   const fetchChatbots = async () => {
     try {
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5050`;
-      const response = await fetch(`${baseUrl}/api/organizations`, {
+      const response = await fetch(`${API_BASE_URL}/organizations`, {
         headers: {
           ...getAuthHeader(),
         },
@@ -117,8 +117,7 @@ const Dashboard = () => {
 
   const handleDeleteBot = async (botId: string) => {
     try {
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5050`;
-      const response = await fetch(`${baseUrl}/api/bot/${botId}`, {
+      const response = await fetch(`${API_BASE_URL}/bot/${botId}`, {
         method: 'DELETE',
         headers: {
           ...getAuthHeader(),
@@ -150,8 +149,7 @@ const Dashboard = () => {
       const text = await file.text();
       const data = JSON.parse(text);
 
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5050`;
-      const response = await fetch(`${baseUrl}/api/bot/import`, {
+      const response = await fetch(`${API_BASE_URL}/bot/import`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

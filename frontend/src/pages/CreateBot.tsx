@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import SparkleLoader from "@/components/ui/sparkle-loader";
 
 import { getAuthHeader } from "@/contexts/AuthContext";
+import { API_BASE_URL } from "@/config";
 
 const CreateBot = () => {
   // Common fields
@@ -138,8 +139,7 @@ const CreateBot = () => {
         formData.append("services", JSON.stringify(services));
       }
 
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5050`;
-      const response = await fetch(`${baseUrl}/api/create-bot`, {
+      const response = await fetch(`${API_BASE_URL}/create-bot`, {
         method: "POST",
         headers: {
           ...getAuthHeader(),

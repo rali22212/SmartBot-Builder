@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BASE_URL } from "@/config";
+import { BASE_URL, API_BASE_URL } from "@/config";
 
 interface Message {
   id: string;
@@ -158,8 +158,7 @@ const ChatInterface = ({ chatbotName, organizationId, onMessageUpdate, onClose }
 
     try {
       const token = localStorage.getItem("smartbot_token");
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5050`;
-      const response = await fetch(`${baseUrl}/api/query/${organizationId}`, {
+      const response = await fetch(`${API_BASE_URL}/query/${organizationId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -246,9 +245,8 @@ const ChatInterface = ({ chatbotName, organizationId, onMessageUpdate, onClose }
       const token = localStorage.getItem("smartbot_token");
 
       // 3. Delete in parallel
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5050`;
       const deletePromises = idsToDelete.map(dbId =>
-        fetch(`${baseUrl}/api/chat-history/${dbId}`, {
+        fetch(`${API_BASE_URL}/chat-history/${dbId}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -304,8 +302,7 @@ const ChatInterface = ({ chatbotName, organizationId, onMessageUpdate, onClose }
 
     try {
       const token = localStorage.getItem("smartbot_token");
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5050`;
-      const response = await fetch(`${baseUrl}/api/chat-history/${dbId}`, {
+      const response = await fetch(`${API_BASE_URL}/chat-history/${dbId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -347,8 +344,7 @@ const ChatInterface = ({ chatbotName, organizationId, onMessageUpdate, onClose }
 
     try {
       const token = localStorage.getItem("smartbot_token");
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5050`;
-      const response = await fetch(`${baseUrl}/api/bot/${organizationId}/chat-history`, {
+      const response = await fetch(`${API_BASE_URL}/bot/${organizationId}/chat-history`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
