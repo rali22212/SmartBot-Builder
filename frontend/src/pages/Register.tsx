@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -12,13 +12,20 @@ import SparkleLoader from "@/components/ui/sparkle-loader";
 
 const Register = () => {
     const [email, setEmail] = useState("");
+    const { register, isAuthenticated } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate("/dashboard");
+        }
+    }, [isAuthenticated, navigate]);
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const { register } = useAuth();
-    const navigate = useNavigate();
+
 
     const passwordRequirements = [
         { text: "At least 6 characters", met: password.length >= 6 },
