@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -12,18 +12,12 @@ import SparkleLoader from "@/components/ui/sparkle-loader";
 
 const Login = () => {
     const [email, setEmail] = useState("");
-    const { login, isAuthenticated } = useAuth();
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        if (isAuthenticated) {
-            navigate("/dashboard");
-        }
-    }, [isAuthenticated, navigate]);
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    const { login } = useAuth();
+    const navigate = useNavigate();
     const location = useLocation();
 
     const from = location.state?.from?.pathname || "/";
