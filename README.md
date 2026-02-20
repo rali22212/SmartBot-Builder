@@ -34,33 +34,6 @@ SmartBot Builder is a **full-stack SaaS platform** that empowers anyone to build
 
 > **🎯 Perfect for**: Customer support, FAQ bots, product guides, company knowledge bases, and more.
 
----
-
-## 📸 Screenshots
-
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <strong>🏠 Landing Page</strong><br/>
-      <em>Modern dark-themed landing page with animated gradients, feature highlights, and smooth scroll navigation.</em>
-    </td>
-    <td align="center" width="50%">
-      <strong>📊 Dashboard</strong><br/>
-      <em>View all your chatbots at a glance — total bots, message stats, and quick actions to chat, delete, or export.</em>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <strong>🛠️ Create Bot</strong><br/>
-      <em>Two modes: Upload a PDF/DOCX for instant AI indexing, or manually enter your organization details.</em>
-    </td>
-    <td align="center" width="50%">
-      <strong>💬 Chat Interface</strong><br/>
-      <em>Real-time AI conversations with message history, delete controls, date separators, and typing indicators.</em>
-    </td>
-  </tr>
-</table>
-
 > 💡 **Tip**: Visit the [live demo](https://smartbot-builder.vercel.app) to see it in action!
 
 ---
