@@ -86,15 +86,22 @@ def get_context_text(org):
 
 # Create tables
 with app.app_context():
-    db.create_all()
-    # Migration for is_deleted
+    print("Attempting to connect to database...")
     try:
+        db.create_all()
+        print("Database tables created/verified.")
+        
+        # Migration for is_deleted
+        print("Checking migrations...")
         with db.engine.connect() as conn:
             conn.execute(text("ALTER TABLE organizations ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE"))
             conn.commit()
             print("Migration checking complete")
     except Exception as e:
-        print(f"Migration note: {e}")
+        print(f"Startup Database Error: {e}")
+        # Don't crash the app, just log error so home route still works
+        pass
+    print("Startup complete.")
 
 @app.route('/')
 def home():
